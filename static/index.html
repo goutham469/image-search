@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        .image {
+            max-width: 250px;
+            margin: 10px;
+            border: 4px solid green;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label>Enter the name: </label>
+        <input type="text" class="input-query" placeholder="e.g. Python_(programming_language)" onclick="" />
+        <br/><br/>
+        <button class="search-button">Search</button>
+    </div>
+    <br/>
+    <div class="imagesData"></div>
+
+    <script>
+        document.querySelector('.search-button').addEventListener('click', async (event) => {
+            event.preventDefault();
+            
+            // Get the input value (search query)
+            const query = document.querySelector('.input-query').value.trim();
+
+            // Check if input is empty
+            if (!query) {
+                alert("Please enter a search term.");
+                return;
+            }
+
+            // Send POST request to the Flask API
+            const response = await fetch('http://127.0.0.1:5000', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query:query })
+            });
+
+            // Process the response
+            const data = await response.json();
+
+            console.log(data)
+
+            // Clear the imagesData container
+            const imagesContainer = document.querySelector('.imagesData');
+            imagesContainer.innerHTML = '';
+
+            // Check if images are returned
+            if (data.images && data.images.length > 0) {
+                data.images.forEach(image => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = image; // Set the image URL
+                    imgElement.classList.add('image');
+                    imagesContainer.appendChild(imgElement);
+                });
+            } else {
+                imagesContainer.innerHTML = '<p>No images found.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
